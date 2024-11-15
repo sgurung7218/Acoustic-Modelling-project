@@ -20,3 +20,8 @@ def plt_graph(y , sr):
     plt.grid(True, linestyle = '--', color = 'gray', linewidth = 0.5)
     plt.show()
 
+def compute_frequency(y,sr):
+    #Computing Short-Time Fourier Transform (STFT)
+    D = librosa.stft(y)
+    magnitude, _ = librosa.magphase(D)
+
