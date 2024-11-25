@@ -30,4 +30,5 @@ def compute_frequency(y,sr):
     highest_resonance = frequencies[index_of_max_resonance]
     return highest_resonance
 
-
+def compute_LMH(y,sr):
+    return 0
