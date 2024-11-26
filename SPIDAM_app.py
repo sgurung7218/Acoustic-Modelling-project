@@ -9,7 +9,7 @@ class App(tk.Tk):
         super().__init__()
         self.title('SPIDAM')
         # create a model
-        sr, y = wavfile.read("16bit1chan.wav")
+        sr, y = wavfile.read("16bit2chan.wav")
         model = Model(y,sr)
         # create a view and place it on the root window
         view = View(self)

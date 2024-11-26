@@ -5,18 +5,18 @@ from scipy.signal import stft
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
-import re
 # self.y is a one-dimensional arraself.y, self.y(t) corresponds to amplitude at t
 # self.sr is the sampling rate
 class Model:
-
     def __init__(self, y, sr):
         self.y = y
         self.sr = sr
-    def freq_graph(self):
-        D = stft(self.y)  # STFT of self.y
-        s_db = np.abs(D)
-        return s_db, self.sr
+    def waveform_graph(self):
+        # If the audio is stereo (2 channels), convert to mono (average both channels)
+        if len(self.y.shape) > 1:
+            self.y = self.y.mean(axis=1)
+        time = np.linspace(0.,self.y.shape[0]/self.sr,self.y.shape[0])
+        return self.y, time
     
     def compute_resonance(self):
         #Computing Short-Time Fourier Transform (STFT)

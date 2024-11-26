@@ -3,7 +3,6 @@ from tkinter import ttk,filedialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import matplotlib.pyplot as plt
-import model as mm
 import librosa
 import librosa.display
 
@@ -21,7 +20,7 @@ class View(ttk.Frame):
         self._url_frame.columnconfigure(0, weight=1)
         self._url_frame.rowconfigure(0, weight=1)  # behaves when resizing
 
-        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct1)  # create button
+        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct2)  # create button
         # fetch_url() is callback for button press
         self._load_btn.grid(row=0, column=1, sticky=W, padx=5)
 
@@ -44,10 +43,10 @@ class View(ttk.Frame):
         self._graph_label = ttk.Label(self._graph_frame, text="Data analysis")
         self._graph_label.grid(row=0, column=0)
         # Create an initial empty plot
-        fig, ax = plt.subplots(figsize=(4, 2))  # Create a blank figure and axis
-        ax.set_title("Graphs")
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Frequency")
+        fig, ax = plt.subplots(figsize=(6, 3))  # Create a blank figure and axis
+        ax.set_title("Default Graph")
+        ax.set_xlabel("Time(s)")
+        ax.set_ylabel("Amplitude")
         ax.grid(True)
         fig.tight_layout()
 
@@ -60,20 +59,31 @@ class View(ttk.Frame):
         self._data_lbl.grid(row=2, column=0, padx=5, pady=5)
 
         self._btn_frame = ttk.Frame(self.mainframe, padding=(0, 10, 0, 0))
-        self._btn_frame.grid(row=1, column=1)
+        self._btn_frame.grid(row=2, column=0)
 
-        self._low_btn = ttk.Button(self._btn_frame, text='Low', command=self.funct1)  # create button
+        self._waveform_btn = ttk.Button(self._btn_frame, text='Waveform graph', command=self.plt_graph)  # create button
         # fetch_url() is callback for button press
-        self._low_btn.grid(row=0, column=0, sticky=W, padx=5)
+        self._waveform_btn.grid(row=0, column=0, sticky=W, padx=5)
+
+        self._intensity_btn = ttk.Button(self._btn_frame, text='Intensity Graph', command=self.intensity_graph)  # create button
+        # fetch_url() is callback for button press
+        self._intensity_btn.grid(row=0, column=1, sticky=W, padx=5)
+
+        self._low_btn = ttk.Button(self._btn_frame, text='Low', command=self.funct3)  # create button
+        # fetch_url() is callback for button press
+        self._low_btn.grid(row=0, column=2, sticky=W, padx=5)
         # creates fetch title button
-        self._mid_btn = ttk.Button(self._btn_frame, text='Medium', command=self.funct2)  # create button
+        self._mid_btn = ttk.Button(self._btn_frame, text='Medium', command=self.funct3)  # create button
         # fetch_url() is callback for button press
-        self._mid_btn.grid(row=1, column=0, sticky=W, padx=5)
+        self._mid_btn.grid(row=1, column=2, sticky=W, padx=5)
 
-        # creates fetch link button
         self._high_link_btn = ttk.Button(self._btn_frame, text='High', command=self.funct3)  # create button
         # fetch_url() is callback for button press
-        self._high_link_btn.grid(row=2, column=0, sticky=W, padx=5)
+        self._high_link_btn.grid(row=2, column=2, sticky=W, padx=5)
+
+        self._comb_btn = ttk.Button(self._btn_frame, text='Combined', command=self.funct3)  # create button
+        # fetch_url() is callback for button press
+        self._comb_btn.grid(row=0, column=4, sticky=W, padx=5)
 
         self._status_frame = ttk.Frame(self, relief='sunken', padding='2 2 2 2')
         self._status_frame.grid(row=1, column=0, sticky=("E", "W", "S",))
@@ -90,13 +100,12 @@ class View(ttk.Frame):
         """
         self.controller = controller
     def plt_graph(self):
-        y, sr = mm.freq_graph()
+        y, t = self.controller.data()
         for widget in self._graph_frame.winfo_children():
             widget.destroy()
-        frequencies = librosa.fft_frequencies(sr=sr)
-        fig, ax = plt.subplots(figsize=(5, 3))
-        ax.plot(y, sr)
-        ax.set_title('Waveform of the Audio')
+        fig, ax = plt.subplots(figsize=(6, 3))
+        ax.plot(t, y, label="Audio Signal")
+        ax.set_title('Waveform graph')
         ax.set_xlabel('Time(s)')
         ax.set_ylabel('Amplitude')
         ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
@@ -105,8 +114,17 @@ class View(ttk.Frame):
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
 
-    def funct1(self):
-        print("funct1 test")
+    def intensity_graph(self):
+        sample_rate, data = self.controller.rawdata()
+        fig, ax = plt.subplots(figsize=(6,3))
+        spectrum, freqs, t, im = plt.specgram(data, Fs=sample_rate, NFFT=1024, cmap=plt.get_cmap('autumn_r'))
+        cbar = fig.colorbar(im)
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Frequency (Hz)')
+        cbar.set_label('Intensity (dB)')
+        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
 
     def funct2(self):
         mid_freq_data, sr = mm.calculate_mid_freq()
