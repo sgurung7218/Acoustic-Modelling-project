@@ -3,8 +3,12 @@ from tkinter import ttk,filedialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from model import Model
 import librosa
 import librosa.display
+import os
+import sys
 
 #ONLY GRAPH BUTTON WORKS RIGHT NOW
 
@@ -20,7 +24,7 @@ class View(ttk.Frame):
         self._url_frame.columnconfigure(0, weight=1)
         self._url_frame.rowconfigure(0, weight=1)  # behaves when resizing
 
-        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct2)  # create button
+        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.searchfile)  # create button
         # fetch_url() is callback for button press
         self._load_btn.grid(row=0, column=1, sticky=W, padx=5)
 
@@ -69,26 +73,22 @@ class View(ttk.Frame):
         # fetch_url() is callback for button press
         self._intensity_btn.grid(row=0, column=1, sticky=W, padx=5)
 
-        self._low_btn = ttk.Button(self._btn_frame, text='Low', command=self.funct3)  # create button
+        self._cycle_btn = ttk.Button(self._btn_frame, text='Cycle Frequency', command=self.funct3)  # create button
         # fetch_url() is callback for button press
-        self._low_btn.grid(row=0, column=2, sticky=W, padx=5)
-        # creates fetch title button
-        self._mid_btn = ttk.Button(self._btn_frame, text='Medium', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._mid_btn.grid(row=1, column=2, sticky=W, padx=5)
-
-        self._high_link_btn = ttk.Button(self._btn_frame, text='High', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._high_link_btn.grid(row=2, column=2, sticky=W, padx=5)
+        self._cycle_btn.grid(row=0, column=2, sticky=W, padx=5)
 
         self._comb_btn = ttk.Button(self._btn_frame, text='Combined', command=self.funct3)  # create button
         # fetch_url() is callback for button press
         self._comb_btn.grid(row=0, column=4, sticky=W, padx=5)
 
+        self._quit_btn = ttk.Button(self.mainframe, text='Quit', command=self.quit)  # create button
+        # exit program on press
+        self._quit_btn.grid(row=2, column=0, sticky=("S","E"), padx=5)
+
         self._status_frame = ttk.Frame(self, relief='sunken', padding='2 2 2 2')
         self._status_frame.grid(row=1, column=0, sticky=("E", "W", "S",))
         self._status_msg = StringVar()  # need modified when update status text
-        self._status_msg.set('Type a file path to select a file...')
+        self._status_msg.set('Select a file to start...')
         self._status = ttk.Label(self._status_frame, textvariable=self._status_msg, anchor=W)
         self._status.grid(row=0, column=0, sticky=(E, W))
 
@@ -99,6 +99,7 @@ class View(ttk.Frame):
         :return:
         """
         self.controller = controller
+
     def plt_graph(self):
         y, t = self.controller.data()
         for widget in self._graph_frame.winfo_children():
@@ -126,7 +127,21 @@ class View(ttk.Frame):
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
 
-    def funct2(self):
+    def searchfile(self):
+        file = filedialog.askopenfile()
+        if file == None:
+            self.alert("Select a file")
+        else:
+            filename = os.path.basename(file.name)
+            sr, y = wavfile.read(f"{filename}")
+            Model(y, sr)
+
+
+
+
+
+
+        """
         mid_freq_data, sr = mm.calculate_mid_freq()
         for widget in self._graph_frame.winfo_children():
             widget.destroy()
@@ -143,6 +158,7 @@ class View(ttk.Frame):
         canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)  # Create canvas
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
+        """
 
     def funct3(self):
         print("funct3 test")
@@ -155,3 +171,6 @@ class View(ttk.Frame):
 
     def alert(self,msg):
         messagebox.showinfo(message=msg)
+
+    def quit(self):
+        sys.exit()
