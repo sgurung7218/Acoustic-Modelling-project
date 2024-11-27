@@ -122,6 +122,7 @@ class View(ttk.Frame):
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('Frequency (Hz)')
         cbar.set_label('Intensity (dB)')
+        fig.tight_layout()
         canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
