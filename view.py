@@ -4,11 +4,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from model import Model
 import librosa
 import librosa.display
 import os
 import sys
+#from pydub import AudioSegment
 
 #ONLY GRAPH BUTTON WORKS RIGHT NOW
 
@@ -133,8 +133,21 @@ class View(ttk.Frame):
             self.alert("Select a file")
         else:
             filename = os.path.basename(file.name)
+            #filenameparts = os.path.splitext(filename)
+            #filetype = filenameparts[1]
+
+            """ #This doesn't work at the moment
+            if filetype != ".wav":
+                if filetype == ".m4a":
+                    wav_filename = f"{filenameparts[0]}.wav"
+                    sound = AudioSegment.from_file(filename, format="m4a")
+                    filename = sound.export(wav_filename, format="wav")
+                else:
+                    self.alert("Unsupported file type")
+            """
+
             sr, y = wavfile.read(f"{filename}")
-            Model(y, sr)
+            self.controller.remakemodel(y,sr)
 
 
 
