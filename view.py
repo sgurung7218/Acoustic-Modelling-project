@@ -73,7 +73,7 @@ class View(ttk.Frame):
         # fetch_url() is callback for button press
         self._intensity_btn.grid(row=0, column=1, sticky=W, padx=5)
 
-        self._cycle_btn = ttk.Button(self._btn_frame, text='Cycle Frequency', command=self.funct3)  # create button
+        self._cycle_btn = ttk.Button(self._btn_frame, text='Cycle Frequency', command=self.cycle_frequency_band)  # create button
         # fetch_url() is callback for button press
         self._cycle_btn.grid(row=0, column=2, sticky=W, padx=5)
 
@@ -91,6 +91,10 @@ class View(ttk.Frame):
         self._status_msg.set('Select a file to start...')
         self._status = ttk.Label(self._status_frame, textvariable=self._status_msg, anchor=W)
         self._status.grid(row=0, column=0, sticky=(E, W))
+
+        self.current_band = 0
+        self.band_names = ['Low', 'Mid', 'High']
+        self.frequency_bands = {'Low': None, 'Mid': None, 'High': None}
 
     def set_controller(self, controller):
         """
@@ -148,30 +152,33 @@ class View(ttk.Frame):
 
             sr, y = wavfile.read(f"{filename}")
             self.controller.remakemodel(y,sr)
-
-
-
-
-
-
-        """
-        mid_freq_data, sr = mm.calculate_mid_freq()
+    def cycle_frequency_band(self):
+        self.current_band = (self.current_band + 1) % len(self.band_names)
+    def plot_frequency(self):
+        y, t = self.controller.data()
         for widget in self._graph_frame.winfo_children():
             widget.destroy()
         # Create a figure and axis
+        if self.current_band == 0:
+            frequency =range(0,50)
+        elif self.current_band == 1:
+            frequency = range(50,1000)
+        else:
+            frequency =range(1000,20000)
+
+        fig, ax = plt.subplots(figsize=(6, 3))
+        ax.plot(t, y, label="Audio Signal")
         fig, ax = plt.subplots(figsize=(4, 2))
         # Plot the data
-        librosa.display.specshow(mid_freq_data, sr=sr, x_axis='time', y_axis='log')
         # Set title and labels
         ax.set_title("Graph Plot")
-        ax.set_xlabel("Amplitude")
-        ax.set_ylabel("Time(s)")
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Power (dB)")
         ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
         # Embed the plot in the Tkinter window
         canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)  # Create canvas
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
-        """
 
     def funct3(self):
         print("funct3 test")
