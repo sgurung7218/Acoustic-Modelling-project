@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -5,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import librosa
 import librosa.display
+from pydub import AudioSegment
+
 
 #ONLY GRAPH BUTTON WORKS RIGHT NOW
 
@@ -12,6 +15,7 @@ class View(ttk.Frame):
     def __init__(self,parent):
         super().__init__(parent)
 
+        self.fileNameLabel = None
         self.mainframe = ttk.Frame(self, padding='5 5 5 5 ')  # root is parent of frame
         self.mainframe.grid(row=0, column=0, sticky=("E", "W", "N", "S"))  # placed on first row,col of parent
         # frame can extend itself in all cardinal directions
@@ -20,23 +24,17 @@ class View(ttk.Frame):
         self._url_frame.columnconfigure(0, weight=1)
         self._url_frame.rowconfigure(0, weight=1)  # behaves when resizing
 
-        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct3)  # create button
+        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.load_audio)  # create button
         # fetch_url() is callback for button press
         self._load_btn.grid(row=0, column=1, sticky="W", padx=5)
+
+        # Create a Label to display the filename below the button
+        self.fileNameLabel = ttk.Label(self._url_frame, text="No file loaded")
+        self.fileNameLabel.grid(row=1, column=1, sticky='W', padx=5)
 
         self._analyze_btn = ttk.Button(self._url_frame, text='Analyze', command=self.plt_graph)  # create button
         # fetch_url() is callback for button press
         self._analyze_btn.grid(row=0, column=2, sticky="W", padx=5)
-
-        self._save_method = tk.StringVar()
-        self._save_method.set('img')
-        self._img_only_radio = ttk.Radiobutton(self._url_frame, text='File is .wav', variable=self._save_method,
-                                               value='img')
-        self._img_only_radio.grid(row=1, column=0, padx=5, pady=2, sticky="W")
-        self._img_only_radio.configure(state='normal')
-        self._json_radio = ttk.Radiobutton(self._url_frame, text='Convert to .wav', variable=self._save_method,
-                                           value='json')
-        self._json_radio.grid(row=2, column=0, padx=5, pady=2, sticky="W")
 
         self._graph_frame = ttk.Frame(self.mainframe, padding="10")
         self._graph_frame.grid(row=1, column=0, padx=10, pady=1)
@@ -235,6 +233,73 @@ class View(ttk.Frame):
         canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
+
+    def load_audio(self):
+            """A simple function to load the file and check if conversion is needed."""
+            self.filePath = filedialog.askopenfilename(title="Select an audio file")
+            if not self.filePath:
+                return
+
+            # Update the label to show the loaded filename
+            self.fileNameLabel.config(text=f"Loaded: {os.path.basename(self.filePath)}")
+
+            # If the file isn't already a WAV, convert it
+            if not self.filePath.lower().endswith('.wav'):
+                self.convert_to_wav()  # Convert the file if it's not a WAV
+            else:
+                # If it's already a WAV, rename it and save to project folder
+                self.rename_wav_file()
+
+    def convert_to_wav(self):
+            """Convert the audio file to WAV if necessary."""
+            if not self.filePath:
+                messagebox.showerror("Error", "No audio file loaded.")
+                return
+
+            try:
+                newFilename = self.convert_to_wav_helper(self.filePath)
+                if newFilename:
+                    self.fileNameLabel.config(text=f"Converted to WAV: {os.path.basename(newFilename)}")
+                    messagebox.showinfo("Success", f"File converted and saved to {newFilename}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to convert file: {str(e)}")
+
+    def rename_wav_file(self):
+            """Rename the already WAV file to testsound.wav and save it in the project directory."""
+            try:
+                # Get the current directory and the new filename
+                current_dir = os.path.dirname(os.path.realpath(__file__))
+                newFilename = os.path.join(current_dir, "testsound.wav")
+
+                # Rename and move the file
+                os.rename(self.filePath, newFilename)
+                self.filePath = newFilename  # Update the file path to the new file
+                self.fileNameLabel.config(text=f"Renamed to: {os.path.basename(newFilename)}")
+                messagebox.showinfo("Success", f"File renamed and saved to {newFilename}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to rename WAV file: {str(e)}")
+
+    @staticmethod
+    def convert_to_wav_helper(filename):
+            """Changing the file to WAV and saving it as 'testsound.wav' in the current directory."""
+            try:
+                print(f"Importing {filename}...")
+
+                # Load the audio file using pydub
+                audio = AudioSegment.from_file(filename)
+
+                # Get the current directory and append the new file name
+                current_dir = os.path.dirname(os.path.realpath(__file__))
+                newFilename = os.path.join(current_dir, "testsound.wav")
+
+                print(f"Converting {filename} to {newFilename}...")
+
+                # Export the audio as WAV to the new filename
+                audio.export(newFilename, format="wav")
+                print(f"Conversion complete: {newFilename}")
+                return newFilename
+            except Exception as e:
+                raise ValueError(f"Could not process the file: {str(e)}")
 
     def funct3(self):
         print("funct3 test")

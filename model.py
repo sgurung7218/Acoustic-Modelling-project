@@ -12,6 +12,13 @@ class Model:
         self.y = y
         self.sr = sr
 
+    def load_audio(self, filename):
+        # Load audio file using scipy's wavfile
+        sr, y = wavfile.read(filename)
+        # If stereo (2 channels), convert to mono (average both channels)            if len(y.shape) > 1:
+        y = y.mean(axis=1)
+        return y, sr
+
     def waveform_graph(self):
         # If the audio is stereo (2 channels), convert to mono (average both channels)
         if len(self.y.shape) > 1:
