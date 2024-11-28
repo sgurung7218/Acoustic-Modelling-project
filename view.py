@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
@@ -20,15 +20,15 @@ class View(ttk.Frame):
         self._url_frame.columnconfigure(0, weight=1)
         self._url_frame.rowconfigure(0, weight=1)  # behaves when resizing
 
-        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct2)  # create button
+        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.funct3)  # create button
         # fetch_url() is callback for button press
-        self._load_btn.grid(row=0, column=1, sticky=W, padx=5)
+        self._load_btn.grid(row=0, column=1, sticky="W", padx=5)
 
         self._analyze_btn = ttk.Button(self._url_frame, text='Analyze', command=self.plt_graph)  # create button
         # fetch_url() is callback for button press
-        self._analyze_btn.grid(row=0, column=2, sticky=W, padx=5)
+        self._analyze_btn.grid(row=0, column=2, sticky="W", padx=5)
 
-        self._save_method = StringVar()
+        self._save_method = tk.StringVar()
         self._save_method.set('img')
         self._img_only_radio = ttk.Radiobutton(self._url_frame, text='File is .wav', variable=self._save_method,
                                                value='img')
@@ -39,7 +39,7 @@ class View(ttk.Frame):
         self._json_radio.grid(row=2, column=0, padx=5, pady=2, sticky="W")
 
         self._graph_frame = ttk.Frame(self.mainframe, padding="10")
-        self._graph_frame.grid(row=1, column=0, padx=10, pady=10)
+        self._graph_frame.grid(row=1, column=0, padx=10, pady=1)
         self._graph_label = ttk.Label(self._graph_frame, text="Data analysis")
         self._graph_label.grid(row=0, column=0)
         # Create an initial empty plot
@@ -55,42 +55,41 @@ class View(ttk.Frame):
         canvas.draw()  # Draw the empty plot
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)  # Add the canvas to the grid
 
-        self._data_lbl = ttk.Label(self._graph_frame, text="Data")
-        self._data_lbl.grid(row=2, column=0, padx=5, pady=5)
-
         self._btn_frame = ttk.Frame(self.mainframe, padding=(0, 10, 0, 0))
         self._btn_frame.grid(row=2, column=0)
 
+        self._data_lbl = ttk.Frame(self._btn_frame, padding="10")
+        self._data_lbl.grid(row=0, column=0, sticky="E")
+
+        self.length_box = tk.Text(self._data_lbl, height=1, width=40)
+        self.length_box.grid(row=0,column=0)
+        self.length_box.insert(tk.END,"File Length = 0s")
+        self.frequency_box = tk.Text(self._data_lbl, height=1, width=40)
+        self.frequency_box.grid(row=1,column=0,)
+        self.frequency_box.insert(tk.END,"Resonance Frequency=___Hz")
+        self.difference_box = tk.Text(self._data_lbl, height=1, width=40)
+        self.difference_box.grid(row=2,column=0,)
+        self.difference_box.insert(tk.END,"Difference=__.__s")
+
+
         self._waveform_btn = ttk.Button(self._btn_frame, text='Waveform graph', command=self.plt_graph)  # create button
-        # fetch_url() is callback for button press
-        self._waveform_btn.grid(row=0, column=0, sticky=W, padx=5)
+        self._waveform_btn.grid(row=0, column=1, sticky="W", padx=5)
 
         self._intensity_btn = ttk.Button(self._btn_frame, text='Intensity Graph', command=self.intensity_graph)  # create button
-        # fetch_url() is callback for button press
-        self._intensity_btn.grid(row=0, column=1, sticky=W, padx=5)
+        self._intensity_btn.grid(row=0, column=2, sticky="W", padx=5)
 
-        self._low_btn = ttk.Button(self._btn_frame, text='Low', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._low_btn.grid(row=0, column=2, sticky=W, padx=5)
-        # creates fetch title button
-        self._mid_btn = ttk.Button(self._btn_frame, text='Medium', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._mid_btn.grid(row=1, column=2, sticky=W, padx=5)
+        self._toggle_btn = ttk.Button(self._btn_frame, text='Cycle RT60 graph', command=self.toggle)  # create button
+        self._toggle_btn.grid(row=0, column=3, sticky="W", padx=5)
 
-        self._high_link_btn = ttk.Button(self._btn_frame, text='High', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._high_link_btn.grid(row=2, column=2, sticky=W, padx=5)
-
-        self._comb_btn = ttk.Button(self._btn_frame, text='Combined', command=self.funct3)  # create button
-        # fetch_url() is callback for button press
-        self._comb_btn.grid(row=0, column=4, sticky=W, padx=5)
+        self._comb_btn = ttk.Button(self._btn_frame, text='Combined RT60 Graph', command=self.combined)  # create button
+        self._comb_btn.grid(row=0, column=6, sticky="W", padx=5)
 
         self._status_frame = ttk.Frame(self, relief='sunken', padding='2 2 2 2')
         self._status_frame.grid(row=1, column=0, sticky=("E", "W", "S",))
-        self._status_msg = StringVar()  # need modified when update status text
+        self._status_msg = tk.StringVar()  # need modified when update status text
         self._status_msg.set('Type a file path to select a file...')
-        self._status = ttk.Label(self._status_frame, textvariable=self._status_msg, anchor=W)
-        self._status.grid(row=0, column=0, sticky=(E, W))
+        self._status = ttk.Label(self._status_frame, textvariable=self._status_msg, anchor="w")
+        self._status.grid(row=0, column=0, sticky=("E", "W"))
 
     def set_controller(self, controller):
         """
@@ -101,6 +100,7 @@ class View(ttk.Frame):
         self.controller = controller
     def plt_graph(self):
         y, t = self.controller.data()
+        freq, Time, Difference = self.controller.analysis()
         for widget in self._graph_frame.winfo_children():
             widget.destroy()
         fig, ax = plt.subplots(figsize=(6, 3))
@@ -113,12 +113,21 @@ class View(ttk.Frame):
         canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
+        self.length_box.delete(1.0, tk.END)
+        self.frequency_box.delete(1.0, tk.END)
+        self.difference_box.delete(1.0, tk.END)
+        self.length_box.insert(tk.END,f"File Length = {Time:.2f}s")
+        self.frequency_box.insert(tk.END,f"Resonant Frequency = {freq:.2f}Hz")
+        self.difference_box.insert(tk.END,f"Difference={Difference[0]:.2f}s")
 
     def intensity_graph(self):
+        for widget in self._graph_frame.winfo_children():
+            widget.destroy()
         sample_rate, data = self.controller.rawdata()
         fig, ax = plt.subplots(figsize=(6,3))
         spectrum, freqs, t, im = plt.specgram(data, Fs=sample_rate, NFFT=1024, cmap=plt.get_cmap('autumn_r'))
         cbar = fig.colorbar(im)
+        ax.set_title('Frequency graph')
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('Frequency (Hz)')
         cbar.set_label('Intensity (dB)')
@@ -127,21 +136,103 @@ class View(ttk.Frame):
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
 
-    def funct2(self):
-        mid_freq_data, sr = mm.calculate_mid_freq()
+    def low_freq(self):
         for widget in self._graph_frame.winfo_children():
             widget.destroy()
-        # Create a figure and axis
-        fig, ax = plt.subplots(figsize=(4, 2))
-        # Plot the data
-        librosa.display.specshow(mid_freq_data, sr=sr, x_axis='time', y_axis='log')
-        # Set title and labels
-        ax.set_title("Graph Plot")
-        ax.set_xlabel("Amplitude")
-        ax.set_ylabel("Time(s)")
+        data_in_db, t = self.controller.frequency_check(0, 1000)
+        RT60, index_of_max, index_of_max_less_5, index_of_max_less_25= self.controller.Calculate_RT60(0,1000)
+        fig, ax = plt.subplots(figsize=(6,3))
+        plt.plot(t, data_in_db, linewidth=1, alpha=0.7, color='y')
+        ax.set_title('Low RT60 graph')
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Power (dB)")
+        plt.plot(t[index_of_max], data_in_db[index_of_max], 'go')
+        plt.plot(t[index_of_max_less_5[0]], data_in_db[index_of_max_less_5[0]], 'bo')
+        plt.plot(t[index_of_max_less_25[0]], data_in_db[index_of_max_less_25[0]], 'ro')
+        fig.tight_layout()
         ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
-        # Embed the plot in the Tkinter window
-        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)  # Create canvas
+        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1,column=0, padx=10, pady=10)
+
+    def mid_freq(self):
+        for widget in self._graph_frame.winfo_children():
+            widget.destroy()
+        data_in_db, t = self.controller.frequency_check(1000,5000)
+        RT60, index_of_max, index_of_max_less_5, index_of_max_less_25= self.controller.Calculate_RT60(1000,5000)
+        fig, ax = plt.subplots(figsize=(6,3))
+        plt.plot(t, data_in_db, linewidth=1, alpha=0.7, color='pink')
+        ax.set_title('Mid RT60 graph')
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Power (dB)")
+        plt.plot(t[index_of_max], data_in_db[index_of_max], 'go')
+        plt.plot(t[index_of_max_less_5[0]], data_in_db[index_of_max_less_5[0]], 'bo')
+        plt.plot(t[index_of_max_less_25[0]], data_in_db[index_of_max_less_25[0]], 'ro')
+        fig.tight_layout()
+        ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
+        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1,column=0, padx=10, pady=10)
+
+    def high_freq(self):
+        for widget in self._graph_frame.winfo_children():
+            widget.destroy()
+        data_in_db, t = self.controller.frequency_check(5000,20000)
+        RT60, index_of_max, index_of_max_less_5, index_of_max_less_25= self.controller.Calculate_RT60(5000,20000)
+        fig, ax = plt.subplots(figsize=(6,3))
+        plt.plot(t, data_in_db, linewidth=1, alpha=0.7, color='b')
+        ax.set_title('High RT60 graph')
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Power (dB)")
+        plt.plot(t[index_of_max], data_in_db[index_of_max], 'go')
+        plt.plot(t[index_of_max_less_5[0]], data_in_db[index_of_max_less_5[0]], 'bo')
+        plt.plot(t[index_of_max_less_25[0]], data_in_db[index_of_max_less_25[0]], 'ro')
+        fig.tight_layout()
+        ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
+        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1,column=0, padx=10, pady=10)
+
+    def toggle(self):
+        global toggle
+        if (toggle == 0):
+            self.low_freq()
+        elif (toggle == 1):
+            self.mid_freq()
+        elif (toggle == 2):
+            self.high_freq()
+        toggle = (toggle+1)%3
+    def combined(self):
+        low_data_in_db, low_t = self.controller.frequency_check(0, 1000)
+        low_RT60, low_index_of_max, low_index_of_max_less_5, low_index_of_max_less_25 = self.controller.Calculate_RT60(0, 1000)
+        mid_data_in_db, mid_t = self.controller.frequency_check(1000, 5000)
+        mid_RT60, mid_index_of_max, mid_index_of_max_less_5, mid_index_of_max_less_25 = self.controller.Calculate_RT60(1000, 5000)
+        high_data_in_db, high_t = self.controller.frequency_check(5000, 20000)
+        high_RT60, high_index_of_max, high_index_of_max_less_5, high_index_of_max_less_25 = self.controller.Calculate_RT60(5000, 20000)
+        for widget in self._graph_frame.winfo_children():
+            widget.destroy()
+        fig, ax = plt.subplots(figsize=(6, 3))
+        ax.plot(low_t, low_data_in_db, linewidth=1, alpha=0.7, color='y', label='low frequency')
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Power (dB)")
+        ax.plot(low_t[low_index_of_max], low_data_in_db[low_index_of_max], 'go')
+        ax.plot(low_t[low_index_of_max_less_5[0]], low_data_in_db[low_index_of_max_less_5[0]], 'bo')
+        ax.plot(low_t[low_index_of_max_less_25[0]], low_data_in_db[low_index_of_max_less_25[0]], 'ro')
+
+        ax.plot(mid_t, mid_data_in_db, linewidth=1, alpha=0.7, color='pink', label='mid frequency')
+        ax.plot(mid_t[mid_index_of_max], mid_data_in_db[mid_index_of_max], 'go')
+        ax.plot(mid_t[mid_index_of_max_less_5[0]], mid_data_in_db[mid_index_of_max_less_5[0]], 'bo')
+        ax.plot(mid_t[mid_index_of_max_less_25[0]], mid_data_in_db[mid_index_of_max_less_25[0]], 'ro')
+
+        ax.plot(high_t, high_data_in_db, linewidth=1, alpha=0.7, color='b', label='high frequency')
+        ax.plot(high_t[high_index_of_max], high_data_in_db[high_index_of_max], 'go')
+        ax.plot(high_t[high_index_of_max_less_5[0]], high_data_in_db[high_index_of_max_less_5[0]], 'bo')
+        ax.plot(high_t[high_index_of_max_less_25[0]], high_data_in_db[high_index_of_max_less_25[0]], 'ro')
+        ax.set_title('Combined RT60 graph')
+        fig.tight_layout()
+        ax.grid(True, linestyle='--', color='gray', linewidth=0.5)
+        ax.legend()
+        canvas = FigureCanvasTkAgg(fig, master=self._graph_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, padx=10, pady=10)
 
@@ -156,3 +247,5 @@ class View(ttk.Frame):
 
     def alert(self,msg):
         messagebox.showinfo(message=msg)
+
+toggle = 0 #do not remove, used to cycle RT60
