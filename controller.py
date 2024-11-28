@@ -2,8 +2,8 @@ from scipy.io import wavfile
 from model import Model
 class Controller:
     def __init__(self, view):
-        sr, y = wavfile.read("testsound.wav")
-        self.model = Model(y, sr)
+        #sr, y = wavfile.read("testsound.wav")
+        #self.model = Model(y, sr)
         self.view = view
 
     def rawdata(self):
@@ -21,6 +21,7 @@ class Controller:
 
     def load_file(self):
         self.view.load_audio()
-        sr, y = wavfile.read("testsound.wav")
-        self.model = Model(y, sr)
-
+        if self.view.checkforfile() == 1:
+            sr, y = wavfile.read("testsound.wav")
+            self.model = Model(y, sr)
+            print("file loaded")
