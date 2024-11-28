@@ -254,6 +254,7 @@ class View(ttk.Frame):
     import os
 
     def load_audio(self):
+        global loadedfile
         """A simple function to load the file and check if conversion is needed."""
         # Check if 'testsound.wav' exists in the project's main directory
         project_dir = os.getcwd()  # Get the current working directory
@@ -269,6 +270,7 @@ class View(ttk.Frame):
         #print(self.filePath)
         if self.filePath == "":
             self.alert("Select a file")
+            loadedfile = 0
         else:
             if not self.filePath:
                 return

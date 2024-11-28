@@ -24,4 +24,3 @@ class Controller:
         if self.view.checkforfile() == 1:
             sr, y = wavfile.read("testsound.wav")
             self.model = Model(y, sr)
-            print("file loaded")
