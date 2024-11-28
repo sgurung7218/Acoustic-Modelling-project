@@ -1,6 +1,9 @@
+from scipy.io import wavfile
+from model import Model
 class Controller:
-    def __init__(self, model, view):
-        self.model = model
+    def __init__(self, view):
+        sr, y = wavfile.read("testsound.wav")
+        self.model = Model(y, sr)
         self.view = view
 
     def rawdata(self):
@@ -15,4 +18,9 @@ class Controller:
 
     def Calculate_RT60(self,min,max):
         return self.model.Calculate_RT60(min,max)
+
+    def load_file(self):
+        self.view.load_audio()
+        sr, y = wavfile.read("testsound.wav")
+        self.model = Model(y, sr)
 

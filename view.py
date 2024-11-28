@@ -25,7 +25,7 @@ class View(ttk.Frame):
         self._url_frame.columnconfigure(0, weight=1)
         self._url_frame.rowconfigure(0, weight=1)  # behaves when resizing
 
-        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.load_audio)  # create button
+        self._load_btn = ttk.Button(self._url_frame, text='Load file', command=self.load_file)  # create button
         # fetch_url() is callback for button press
         self._load_btn.grid(row=0, column=1, sticky="W", padx=5)
 
@@ -311,9 +311,8 @@ class View(ttk.Frame):
                 return newFilename
             except Exception as e:
                 raise ValueError(f"Could not process the file: {str(e)}")
-
-    def funct3(self):
-        print("funct3 test")
+    def load_file(self):
+        self.controller.load_file()
 
     def save(self):
         print("save test")
