@@ -5,6 +5,7 @@ from scipy.signal import stft, welch
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+import os
 # self.y is a one-dimensional arraself.y, self.y(t) corresponds to amplitude at t
 # self.sr is the sampling rate
 class Model:
@@ -80,3 +81,4 @@ class Model:
         avg_RT60 = (low_RT60 + mid_RT60 + high_RT60) / 3
         difference = avg_RT60 - .5
         return difference
+
