@@ -71,7 +71,7 @@ class Model:
         value_of_max_less_25 = self.find_nearest_value(sliced_array, value_of_max_less_25)
         index_of_max_less_25 = np.where(data_in_db == value_of_max_less_25)
         rt20 = t[index_of_max_less_5[0]] - t[index_of_max_less_25[0]]
-        rt60 = 3 * rt20
+        rt60 = abs(3 * rt20)
         return rt60, index_of_max, index_of_max_less_5, index_of_max_less_25
 
     def find_difference(self):
