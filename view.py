@@ -6,8 +6,6 @@ from tkinter import ttk,filedialog,messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import matplotlib.pyplot as plt
-import librosa
-import librosa.display
 from pydub import AudioSegment
 import sys
 
